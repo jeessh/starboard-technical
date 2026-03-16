@@ -1,0 +1,33 @@
+{
+  "sender": {
+    "name": "Michael Wong",
+    "email": "michael.wong@pacificlogistics.com",
+    "company": "Pacific Logistics International Inc",
+    "phone": "+1 555-258-3911"
+  },
+  "shipments": [
+    {
+      "origin": {
+        "city": "Nhava Sheva",
+        "country": "India",
+        "address": null
+      },
+      "destination": {
+        "city": "New York",
+        "country": "USA",
+        "address": "742 Industrial Parkway, Dayville CT"
+      },
+      "cargo": {
+        "description": "Industrial Tapes",
+        "weight_kg": 3363.4,
+        "volume_cbm": 19.239,
+        "container_type": "40ft",
+        "container_count": 1,
+        "piece_count": 23
+      },
+      "transport_mode": "ocean_fcl",
+      "incoterm": "Collect",
+      "special_requirements": []
+    }
+  ]
+}

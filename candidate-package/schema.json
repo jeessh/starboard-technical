@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RFQ Email Extraction",
+  "description": "Schema for extracting shipment request information from freight quote emails",
+  "type": "object",
+  "required": ["sender", "shipments"],
+  "properties": {
+    "sender": {
+      "type": "object",
+      "description": "Contact information of the person requesting the quote",
+      "required": ["name", "email"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "company": { "type": ["string", "null"] },
+        "phone": { "type": ["string", "null"] }
+      }
+    },
+    "shipments": {
+      "type": "array",
+      "description": "List of shipment requests. One email may contain multiple shipments (different routes or transport options).",
+      "items": {
+        "type": "object",
+        "required": ["origin", "destination"],
+        "properties": {
+          "origin": {
+            "type": "object",
+            "description": "Where the cargo is shipping from",
+            "required": ["city", "country"],
+            "properties": {
+              "city": { "type": "string" },
+              "country": { "type": "string" },
+              "address": { "type": ["string", "null"], "description": "Full address if door pickup is requested" }
+            }
+          },
+          "destination": {
+            "type": "object",
+            "description": "Where the cargo is shipping to",
+            "required": ["city", "country"],
+            "properties": {
+              "city": { "type": "string" },
+              "country": { "type": "string" },
+              "address": { "type": ["string", "null"], "description": "Full address if door delivery is requested" }
+            }
+          },
+          "cargo": {
+            "type": "object",
+            "description": "Details about what is being shipped",
+            "properties": {
+              "description": { "type": ["string", "null"], "description": "What is being shipped (commodity)" },
+              "weight_kg": { "type": ["number", "null"], "description": "Total weight in kilograms" },
+              "volume_cbm": { "type": ["number", "null"], "description": "Total volume in cubic meters" },
+              "container_type": { "type": ["string", "null"], "description": "Container size/type if specified (e.g., 20ft, 40ft, 40HC)" },
+              "container_count": { "type": ["integer", "null"], "description": "Number of containers" },
+              "piece_count": { "type": ["integer", "null"], "description": "Number of pieces/pallets/crates if specified" }
+            }
+          },
+          "transport_mode": {
+            "type": ["string", "null"],
+            "enum": ["ocean_fcl", "ocean_lcl", "air", null],
+            "description": "How the cargo should be transported. ocean_fcl = full container, ocean_lcl = less than container load, air = air freight"
+          },
+          "incoterm": {
+            "type": ["string", "null"],
+            "description": "Trade term if specified (e.g., FOB, DDP, EXW)"
+          },
+          "special_requirements": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Any special handling or service requirements (e.g., temperature control, free time)"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "sender": {
+    "name": "Jennifer Liu",
+    "email": "jennifer.liu@transworld-shipping.com",
+    "company": "TransWorld Shipping Solutions",
+    "phone": "+1 555-759-4059"
+  },
+  "shipments": [
+    {
+      "origin": {
+        "city": "Ningbo",
+        "country": "China",
+        "address": null
+      },
+      "destination": {
+        "city": "Shakopee",
+        "country": "US",
+        "address": null
+      },
+      "cargo": {
+        "description": null,
+        "weight_kg": 7800,
+        "volume_cbm": 59,
+        "container_type": "40ft",
+        "container_count": 1,
+        "piece_count": null
+      },
+      "transport_mode": "ocean_fcl",
+      "incoterm": null,
+      "special_requirements": []
+    },
+    {
+      "origin": {
+        "city": "Ningbo",
+        "country": "China",
+        "address": null
+      },
+      "destination": {
+        "city": "Mississauga",
+        "country": "Canada",
+        "address": null
+      },
+      "cargo": {
+        "description": null,
+        "weight_kg": 7800,
+        "volume_cbm": 59,
+        "container_type": "40ft",
+        "container_count": 1,
+        "piece_count": null
+      },
+      "transport_mode": "ocean_fcl",
+      "incoterm": null,
+      "special_requirements": []
+    }
+  ]
+}

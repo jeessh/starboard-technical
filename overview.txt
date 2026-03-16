@@ -1,0 +1,16 @@
+- sanitized client emails
+- emails contain quotes
+    - eg: ship container from overseas to wloo
+        - figure how to create route (which carriers needed)
+
+- store rate sheets
+    - companies have rates for carriers
+    - destinations/starting
+    - rates
+    - company
+
+- assemble quote with given information
+    - legs, rates, amount saved, transit time (details at each step)
+- software: convert messy human language -> create a quote
+- parse emails into schema/json
+    - 

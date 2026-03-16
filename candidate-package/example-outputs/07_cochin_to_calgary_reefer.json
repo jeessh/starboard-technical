@@ -1,0 +1,36 @@
+{
+  "sender": {
+    "name": "Ajith Kumar",
+    "email": "ajith.kumar@indialogistics.com",
+    "company": "India Logistics Services Pvt. Ltd.",
+    "phone": "+91 555-406-8860"
+  },
+  "shipments": [
+    {
+      "origin": {
+        "city": "Cochin",
+        "country": "INDIA",
+        "address": "303, Castle Rock, Door No C.C 63/2510, Manorama Junction, Cochin-682016, INDIA"
+      },
+      "destination": {
+        "city": "Calgary",
+        "country": "Canada",
+        "address": "79 Ave SE Calgary T2C5K3"
+      },
+      "cargo": {
+        "description": "Frozen Foods",
+        "weight_kg": null,
+        "volume_cbm": null,
+        "container_type": "40HC",
+        "container_count": null,
+        "piece_count": null
+      },
+      "transport_mode": "ocean_fcl",
+      "incoterm": "DDP",
+      "special_requirements": [
+        "Reefer",
+        "Temperature: -18"
+      ]
+    }
+  ]
+}

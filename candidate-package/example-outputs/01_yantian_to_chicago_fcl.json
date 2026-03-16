@@ -1,0 +1,33 @@
+{
+  "sender": {
+    "name": "Sarah Chen",
+    "email": "sarah.chen@globalfreight.com",
+    "company": "Global Freight Solutions Inc.",
+    "phone": "+1 555-123-4567"
+  },
+  "shipments": [
+    {
+      "origin": {
+        "city": "Yantian",
+        "country": "China",
+        "address": null
+      },
+      "destination": {
+        "city": "Chicago",
+        "country": "USA",
+        "address": null
+      },
+      "cargo": {
+        "description": "Plastic Molding",
+        "weight_kg": null,
+        "volume_cbm": null,
+        "container_type": "20ft",
+        "container_count": 1,
+        "piece_count": null
+      },
+      "transport_mode": "ocean_fcl",
+      "incoterm": null,
+      "special_requirements": []
+    }
+  ]
+}

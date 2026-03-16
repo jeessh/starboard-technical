@@ -1,0 +1,62 @@
+{
+  "sender": {
+    "name": "Priya Sharma",
+    "email": "priya.sharma@indiafreight.com",
+    "company": "India Freight",
+    "phone": "+91 555-876-0502"
+  },
+  "shipments": [
+    {
+      "origin": {
+        "city": "Houston",
+        "country": "USA",
+        "address": "AUTOPARTS WEST LLC, 2007 Royal Lane, Suite 140, Dallas, TX 75229"
+      },
+      "destination": {
+        "city": "Sonipat",
+        "country": "India",
+        "address": null
+      },
+      "cargo": {
+        "description": "Auto Parts",
+        "volume_cbm": null,
+        "container_type": "20ft",
+        "container_count": 2,
+        "piece_count": null,
+        "weight_kg": 18000
+      },
+      "transport_mode": "ocean_fcl",
+      "incoterm": "FOB",
+      "special_requirements": [
+        "Minimum 14 days free time at destination",
+        "Need itemized breakdown of all costs"
+      ]
+    },
+    {
+      "origin": {
+        "city": "Atlanta",
+        "country": "USA",
+        "address": "AUTOPARTS EAST LLC, 113 Hemlock Street, Rome, GA 30161"
+      },
+      "destination": {
+        "city": "Sonipat",
+        "country": "India",
+        "address": null
+      },
+      "cargo": {
+        "description": "Auto Parts",
+        "volume_cbm": null,
+        "container_type": "20ft",
+        "container_count": 2,
+        "piece_count": null,
+        "weight_kg": 18000
+      },
+      "transport_mode": "ocean_fcl",
+      "incoterm": "FOB",
+      "special_requirements": [
+        "Minimum 14 days free time at destination",
+        "Need itemized breakdown of all costs"
+      ]
+    }
+  ]
+}

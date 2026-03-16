@@ -1,0 +1,36 @@
+{
+  "sender": {
+    "name": "David Zhang",
+    "email": "david.zhang@oceanbridge.com",
+    "company": "OceanBridge Logistics Inc.",
+    "phone": "+1 555-806-4131"
+  },
+  "shipments": [
+    {
+      "origin": {
+        "city": "Suzhou",
+        "country": "China",
+        "address": "SUZHOU CITY JIANGSU P.R.CHINA"
+      },
+      "destination": {
+        "city": "Dallas",
+        "country": "United States",
+        "address": null
+      },
+      "cargo": {
+        "description": "Parts",
+        "weight_kg": null,
+        "volume_cbm": null,
+        "container_type": "40ft",
+        "container_count": 1,
+        "piece_count": null
+      },
+      "transport_mode": "ocean_fcl",
+      "incoterm": "FOB",
+      "special_requirements": [
+        "Non-DG",
+        "Parts of charges/stations"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "sender": {
+    "name": "LISA NGUYEN",
+    "email": "lisa.nguyen@worldwidefreight.com",
+    "company": null,
+    "phone": "555-445-9199"
+  },
+  "shipments": [
+    {
+      "origin": {
+        "city": "Bogota",
+        "country": "Colombia",
+        "address": "Ex-work Canora. Calle 68 # 16 - 53."
+      },
+      "destination": {
+        "city": "Summerville",
+        "country": "United States",
+        "address": "168 Portside Park Drive Suite A."
+      },
+      "cargo": {
+        "description": null,
+        "weight_kg": null,
+        "volume_cbm": 5.44,
+        "container_type": null,
+        "container_count": null,
+        "piece_count": 4
+      },
+      "transport_mode": "air",
+      "incoterm": "EXW",
+      "special_requirements": []
+    },
+    {
+      "origin": {
+        "city": "Bogota",
+        "country": "Colombia",
+        "address": "Ex-work Canora. Calle 68 # 16 - 53."
+      },
+      "destination": {
+        "city": "Summerville",
+        "country": "United States",
+        "address": "168 Portside Park Drive Suite A."
+      },
+      "cargo": {
+        "description": null,
+        "weight_kg": null,
+        "volume_cbm": 5.44,
+        "container_type": null,
+        "container_count": null,
+        "piece_count": 4
+      },
+      "transport_mode": "ocean_lcl",
+      "incoterm": "EXW",
+      "special_requirements": []
+    }
+  ]
+}
