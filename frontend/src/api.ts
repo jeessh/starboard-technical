@@ -7,7 +7,11 @@ import type {
   ShipmentUpdate,
 } from "./types";
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+const BASE =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.DEV
+    ? "http://localhost:8000"
+    : "https://starboard-technical.vercel.app");
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

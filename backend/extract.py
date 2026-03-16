@@ -27,12 +27,20 @@ load_dotenv()
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-BASE_DIR = Path(__file__).parent.parent / "candidate-package"
+PROJECT_ROOT = Path(__file__).parent.parent
+DEFAULT_PACKAGE_DIR = PROJECT_ROOT / "candidate-package"
+LOCAL_PACKAGE_DIR = Path(__file__).parent / "candidate-package"
+
+if (DEFAULT_PACKAGE_DIR / "schema.json").exists():
+    BASE_DIR = DEFAULT_PACKAGE_DIR
+elif (LOCAL_PACKAGE_DIR / "schema.json").exists():
+    BASE_DIR = LOCAL_PACKAGE_DIR
+else:
+    BASE_DIR = DEFAULT_PACKAGE_DIR
+
 EMAILS_DIR = BASE_DIR / "input-emails"
 OUTPUT_DIR = BASE_DIR / "example-outputs"
 SCHEMA_PATH = BASE_DIR / "schema.json"
-
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------------
 # Model config – gpt-4o-mini balances cost and accuracy well for extraction
@@ -147,6 +155,12 @@ SCHEMA (final output structure – Python will post-process unit fields):
 # ---------------------------------------------------------------------------
 # Load schema once
 # ---------------------------------------------------------------------------
+if not SCHEMA_PATH.exists():
+    raise FileNotFoundError(
+        f"Schema file not found at {SCHEMA_PATH}. "
+        "Ensure candidate-package/schema.json is included with the backend deployment."
+    )
+
 with open(SCHEMA_PATH, "r") as f:
     SCHEMA = json.load(f)
 
@@ -308,6 +322,8 @@ def main() -> None:
         sys.exit("Error: OPENAI_API_KEY environment variable not set.")
 
     client = OpenAI(api_key=api_key)
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     email_files = sorted(EMAILS_DIR.glob("*.txt"))
     if not email_files:

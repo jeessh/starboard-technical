@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import type { ProcessedEmailSummary, ProcessedEmail } from "./types";
+import type { ProcessedEmailSummary } from "./types";
 import { getEmails } from "./api";
 import EmailTable from "./components/EmailTable";
 import Pagination from "./components/Pagination";
@@ -52,7 +52,7 @@ export default function App() {
     );
   }
 
-  function handleCreated(_email: ProcessedEmail) {
+  function handleCreated() {
     fetchPage(1);
   }
 
