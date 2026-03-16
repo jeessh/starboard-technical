@@ -40,9 +40,75 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 MODEL = "gpt-4o-mini"
 
 # ---------------------------------------------------------------------------
-# System prompt
+# Pre-classification + normalization prompts
 # ---------------------------------------------------------------------------
-SYSTEM_PROMPT = """You are a freight logistics data extraction specialist.
+CLASSIFICATION_PROMPT = """You are classifying freight quote request emails.
+
+Determine whether the input should be treated as a RATE SHEET style request.
+
+Classify as is_rate_sheet=true when the email is primarily structured like any of:
+- a table
+- field/value pairs
+- spreadsheet-like rows
+- checklist/form layout
+- dense spec sheet with labeled attributes
+
+Classify as is_rate_sheet=false when the email is primarily normal prose / free text,
+even if it contains a few labeled lines like POL/POD.
+
+Return JSON only in this exact shape:
+{
+    "is_rate_sheet": true,
+    "reason": "brief explanation"
+}
+"""
+
+RATE_SHEET_NORMALIZATION_PROMPT = """You are rewriting freight quote rate-sheet emails
+into a deterministic canonical text format for a downstream extractor.
+
+Your task:
+1. Read the raw rate sheet / table / field-value email.
+2. Convert it into clean plain text sections.
+3. Preserve all factual details exactly.
+4. Do NOT infer missing values.
+5. Do NOT convert units.
+6. Keep one fact per line where practical.
+
+Output JSON only in this exact shape:
+{
+    "normalized_email": "..."
+}
+
+Use a format like:
+Subject: ...
+From: ...
+
+Sender:
+- Name: ...
+- Company: ...
+- Phone: ...
+- Email: ...
+
+Shipment Request:
+- Origin city: ...
+- Origin country: ...
+- Destination city: ...
+- Destination country: ...
+- Destination address: ...
+- Mode requested: ...
+- Container: ...
+- Container count: ...
+- Cargo description: ...
+- Weight: ...
+- Volume: ...
+- Piece count: ...
+- Incoterm / shipping terms: ...
+- Special requirements: ...
+
+Include any additional factual rows under the most relevant heading.
+"""
+
+EXTRACTION_PROMPT = """You are a freight logistics data extraction specialist.
 
 Your job is to read a raw freight quote request (RFQ) email and extract all
 shipment information into a structured JSON object. The output will be post-processed
@@ -84,7 +150,65 @@ SCHEMA (final output structure – Python will post-process unit fields):
 with open(SCHEMA_PATH, "r") as f:
     SCHEMA = json.load(f)
 
-FILLED_SYSTEM_PROMPT = SYSTEM_PROMPT.format(schema=json.dumps(SCHEMA, indent=2))
+FILLED_EXTRACTION_PROMPT = EXTRACTION_PROMPT.format(schema=json.dumps(SCHEMA, indent=2))
+
+
+# ---------------------------------------------------------------------------
+# LLM helpers
+# ---------------------------------------------------------------------------
+def _json_completion(client: OpenAI, system_prompt: str, user_prompt: str) -> tuple[dict, dict]:
+    """Run a JSON-mode completion and return (parsed_json, usage)."""
+    response = client.chat.completions.create(
+        model=MODEL,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0,
+    )
+
+    raw_json = response.choices[0].message.content
+    try:
+        parsed = json.loads(raw_json)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"LLM returned invalid JSON: {exc}\n{raw_json}")
+
+    usage = {
+        "input_tokens": response.usage.prompt_tokens,
+        "output_tokens": response.usage.completion_tokens,
+        "total_tokens": response.usage.total_tokens,
+    }
+    return parsed, usage
+
+
+def classify_email_format(client: OpenAI, email_text: str) -> tuple[bool, dict, dict]:
+    """Classify whether an email is rate-sheet-like."""
+    parsed, usage = _json_completion(
+        client,
+        CLASSIFICATION_PROMPT,
+        f"Classify this freight email:\n\n{email_text}",
+    )
+
+    if "is_rate_sheet" not in parsed:
+        raise ValueError("Classification response missing 'is_rate_sheet'")
+
+    return bool(parsed["is_rate_sheet"]), parsed, usage
+
+
+def normalize_rate_sheet(client: OpenAI, email_text: str) -> tuple[str, dict]:
+    """Rewrite a rate-sheet email into canonical plain text for extraction."""
+    parsed, usage = _json_completion(
+        client,
+        RATE_SHEET_NORMALIZATION_PROMPT,
+        f"Normalize this freight rate-sheet email:\n\n{email_text}",
+    )
+
+    normalized = parsed.get("normalized_email")
+    if not isinstance(normalized, str) or not normalized.strip():
+        raise ValueError("Normalization response missing 'normalized_email'")
+
+    return normalized, usage
 
 
 # ---------------------------------------------------------------------------
@@ -133,26 +257,32 @@ def extract_rfq(client: OpenAI, email_text: str, filename: str) -> tuple[dict, d
     Send one email to the LLM and return (parsed_result, usage_dict).
     Raises ValueError if the response is not valid JSON or fails schema validation.
     """
-    response = client.chat.completions.create(
-        model=MODEL,
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": FILLED_SYSTEM_PROMPT},
-            {
-                "role": "user",
-                "content": f"Extract the shipment data from this email:\n\n{email_text}",
-            },
-        ],
-        temperature=0,  # deterministic – extraction tasks don't benefit from creativity
-    )
+    total_usage = {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
 
-    raw_json = response.choices[0].message.content
+    # Stage 1: classify input shape
+    is_rate_sheet, _classification, usage = classify_email_format(client, email_text)
+    for key in total_usage:
+        total_usage[key] += usage[key]
 
-    # Parse
+    # Stage 2: if needed, normalize rate-sheet/table content into canonical text
+    extraction_input = email_text
+    if is_rate_sheet:
+        extraction_input, usage = normalize_rate_sheet(client, email_text)
+        for key in total_usage:
+            total_usage[key] += usage[key]
+
+    # Stage 3: run the original extraction logic against the chosen input
     try:
-        result = json.loads(raw_json)
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"[{filename}] LLM returned invalid JSON: {exc}\n{raw_json}")
+        result, usage = _json_completion(
+            client,
+            FILLED_EXTRACTION_PROMPT,
+            f"Extract the shipment data from this email:\n\n{extraction_input}",
+        )
+    except ValueError as exc:
+        raise ValueError(f"[{filename}] {exc}")
+
+    for key in total_usage:
+        total_usage[key] += usage[key]
 
     # Post-process units (convert to kg, CBM)
     result = convert_units(result)
@@ -163,13 +293,7 @@ def extract_rfq(client: OpenAI, email_text: str, filename: str) -> tuple[dict, d
     except jsonschema.ValidationError as exc:
         raise ValueError(f"[{filename}] Schema validation failed: {exc.message}")
 
-    usage = {
-        "input_tokens": response.usage.prompt_tokens,
-        "output_tokens": response.usage.completion_tokens,
-        "total_tokens": response.usage.total_tokens,
-    }
-
-    return result, usage
+    return result, total_usage
 
 
 # ---------------------------------------------------------------------------
